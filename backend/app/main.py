@@ -23,15 +23,11 @@ from app.routers import websocket
 
 
 # ============================================================
-# LOAD ENVIRONMENT VARIABLES
+# ENVIRONMENT
 # ============================================================
 
 load_dotenv()
 
-
-# ============================================================
-# APPLICATION CONFIGURATION
-# ============================================================
 
 APP_ENV = os.getenv(
     "APP_ENV",
@@ -41,129 +37,66 @@ APP_ENV = os.getenv(
 
 FRONTEND_URL = os.getenv(
     "FRONTEND_URL",
-    "http://localhost:5173"
-)
+    ""
+).strip().rstrip("/")
 
 
 FRONTEND_LOCAL_URL = os.getenv(
     "FRONTEND_LOCAL_URL",
-    "http://127.0.0.1:5173"
-)
+    ""
+).strip().rstrip("/")
 
 
 # ============================================================
-# FASTAPI APPLICATION
+# APPLICATION
 # ============================================================
 
 app = FastAPI(
     title="Employee Management System API",
     description=(
-        "Backend API for employee management, "
-        "authentication, task management, daily work records, "
-        "employee performance, admin performance comparison, "
-        "management reports, ML analytics, activity monitoring, "
-        "employee portal, and real-time dashboard."
+        "Backend API for employee management, authentication, "
+        "task management, daily work records, performance, "
+        "reports, ML analytics and real-time activity."
     ),
     version="1.0.0"
 )
 
 
 # ============================================================
-# BUILD ALLOWED CORS ORIGINS
+# CORS
 # ============================================================
 
-allowed_origins = []
-
-
-# ------------------------------------------------------------
-# PRIMARY FRONTEND URL
-#
-# Development example:
-# http://localhost:5173
-#
-# Production example:
-# https://your-frontend.onrender.com
-# ------------------------------------------------------------
-
-if FRONTEND_URL:
-
-    allowed_origins.append(
-        FRONTEND_URL.rstrip("/")
-    )
-
-
-# ------------------------------------------------------------
-# OPTIONAL LOCAL FRONTEND URL
-# ------------------------------------------------------------
-
-if FRONTEND_LOCAL_URL:
-
-    local_origin = (
-        FRONTEND_LOCAL_URL.rstrip("/")
-    )
-
-    if (
-        local_origin
-        not in allowed_origins
-    ):
-
-        allowed_origins.append(
-            local_origin
-        )
-
-
-# ------------------------------------------------------------
-# ADD STANDARD LOCAL DEVELOPMENT ORIGINS
-#
-# Keeping these allows local React development while the
-# production backend configuration is also available.
-# ------------------------------------------------------------
-
-development_origins = [
+allowed_origins = [
+    "https://employee-management-system-frontend-xapm.onrender.com",
     "http://localhost:5173",
     "http://127.0.0.1:5173"
 ]
 
 
-for origin in development_origins:
-
-    if (
-        origin
-        not in allowed_origins
-    ):
-
-        allowed_origins.append(
-            origin
-        )
+if (
+    FRONTEND_URL
+    and FRONTEND_URL not in allowed_origins
+):
+    allowed_origins.append(
+        FRONTEND_URL
+    )
 
 
-# ============================================================
-# CORS
-# ============================================================
+if (
+    FRONTEND_LOCAL_URL
+    and FRONTEND_LOCAL_URL not in allowed_origins
+):
+    allowed_origins.append(
+        FRONTEND_LOCAL_URL
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
-
-    allow_origins=
-        allowed_origins,
-
+    allow_origins=allowed_origins,
     allow_credentials=True,
-
-    allow_methods=[
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE",
-        "OPTIONS"
-    ],
-
-    allow_headers=[
-        "Authorization",
-        "Content-Type",
-        "Accept",
-        "Origin"
-    ]
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 
@@ -241,7 +174,7 @@ def home():
 
 
 # ============================================================
-# HEALTH CHECK
+# HEALTH
 # ============================================================
 
 @app.get("/health")
